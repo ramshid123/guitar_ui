@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:guitar_ui/core/common/widgets.dart';
 import 'package:guitar_ui/core/constants/palette.dart';
 import 'package:guitar_ui/features/presentation/home%20page/view/widgets.dart';
+import 'package:o3d/o3d.dart' as o3d;
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -19,6 +20,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   late AnimationController _entryAnimationController;
   final List<Animation> _entryAnimations = [];
+
+  final _o3DController = o3d.O3DController();
 
   final xPos = ValueNotifier(0.0);
 
@@ -58,8 +61,16 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       ),
     );
 
-    Future.delayed(
-        const Duration(seconds: 2), () => _entryAnimationController.forward());
+    _animation1.addListener(() {
+      _o3DController.cameraOrbit(
+          (90 * (-_animation1.value)).toDouble(), 90, 180);
+
+    });
+
+    Future.delayed(const Duration(seconds: 4), () async {
+      // _o3DController.cameraOrbit(0, 90, 180);
+      await _entryAnimationController.forward();
+    });
 
     super.initState();
   }
@@ -263,22 +274,65 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                     ],
                                   ),
                                 ),
-                                AnimatedBuilder(
-                                    animation: _entryAnimations[0],
-                                    builder: (context, _) {
-                                      return Transform.translate(
-                                          offset: Offset(
-                                              0.0,
-                                              50.h *
-                                                  (1 -
-                                                      _entryAnimations[0]
-                                                          .value)),
-                                          child: Opacity(
+                                Transform.translate(
+                                  offset: Offset(0, -30.h),
+                                  child: AnimatedBuilder(
+                                      animation: _entryAnimations[0],
+                                      builder: (context, _) {
+                                        return Transform(
+                                            transform: Matrix4.identity()
+                                              ..translate(
+                                                  0.0,
+                                                  50.h *
+                                                      (1 -
+                                                          _entryAnimations[0]
+                                                              .value),
+                                                  -80.w * _animation1.value)
+                                              ..rotateY(math.pi /
+                                                  2 *
+                                                  -_animation1.value)
+                                              ..scale(
+                                                  0.9 +
+                                                      0.1 *
+                                                          (1 -
+                                                              _animation1
+                                                                  .value),
+                                                  0.9 +
+                                                      0.1 *
+                                                          (1 -
+                                                              _animation1
+                                                                  .value),
+                                                  0.9 +
+                                                      0.1 *
+                                                          (1 -
+                                                              _animation1
+                                                                  .value)),
+                                            child: Opacity(
                                               opacity:
                                                   _entryAnimations[0].value,
-                                              child: HomePageWidget
-                                                  .guitarWidget()));
-                                    }),
+                                              child: IgnorePointer(
+                                                child: SizedBox(
+                                                  height: 550.h,
+                                                  width: 300.w,
+                                                  child: o3d.O3D.asset(
+                                                    src:
+                                                        'assets/designer_guitar.glb',
+                                                    autoPlay: false,
+                                                    autoRotate: false,
+                                                    interactionPrompt: o3d
+                                                        .InteractionPrompt.none,
+                                                    cameraOrbit:
+                                                        o3d.CameraOrbit(
+                                                            0, 90, 180),
+                                                    controller: _o3DController,
+                                                    
+                                                  ),
+                                                 
+                                                ),
+                                              ),
+                                            ));
+                                      }),
+                                ),
                               ],
                             ),
                           ),

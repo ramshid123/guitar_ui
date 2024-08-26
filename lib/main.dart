@@ -22,6 +22,7 @@ class MyApp extends StatelessWidget {
       designSize: Size(392.72727272727275, 803.6363636363636),
       child: MaterialApp(
         title: 'Guitar UI',
+        debugShowCheckedModeBanner: false,
         home: HomePage(),
       ),
     );
